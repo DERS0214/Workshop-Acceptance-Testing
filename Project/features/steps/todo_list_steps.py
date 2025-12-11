@@ -40,6 +40,17 @@ def step_when_list_tasks(context):
     context.list_output = "\n".join(lines)
 
 
+@when('the user marks task "{title}" as completed')
+def step_when_mark_completed(context, title):
+    task = _find_task_by_title(context.todo, title)
+    context.todo.mark_completed(task.id)
+
+
+@when("the user clears the to-do list")
+def step_when_clear_list(context):
+    context.todo.clear()
+
+
 @then('the to-do list should contain "{title}"')
 def step_then_contains_task(context, title):
     titles = [task.title for task in context.todo.list_tasks()]
@@ -52,4 +63,22 @@ def step_then_output_contains(context):
     actual_lines = [line.strip() for line in context.list_output.strip().splitlines()]
     for expected in expected_lines:
         assert expected in actual_lines, f"Expected line '{expected}' not found in output"
+
+
+@then('the to-do list should show task "{title}" as completed')
+def step_then_task_completed(context, title):
+    task = _find_task_by_title(context.todo, title)
+    assert task.status == "completed", f"Expected '{title}' to be completed, got {task.status}"
+
+
+@then("the to-do list should be empty")
+def step_then_list_empty(context):
+    assert len(context.todo.list_tasks()) == 0, "Expected the to-do list to be empty"
+
+
+def _find_task_by_title(todo, title):
+    for task in todo.list_tasks():
+        if task.title == title:
+            return task
+    raise AssertionError(f"Task with title '{title}' not found")
 
