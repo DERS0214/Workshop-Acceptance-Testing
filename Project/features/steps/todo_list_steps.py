@@ -46,6 +46,12 @@ def step_when_mark_completed(context, title):
     context.todo.mark_completed(task.id)
 
 
+@when('the user renames task "{old}" to "{new}"')
+def step_when_rename_task(context, old, new):
+    task = _find_task_by_title(context.todo, old)
+    context.todo.update_task(task.id, new)
+
+
 @when("the user clears the to-do list")
 def step_when_clear_list(context):
     context.todo.clear()
@@ -74,6 +80,12 @@ def step_then_task_completed(context, title):
 @then("the to-do list should be empty")
 def step_then_list_empty(context):
     assert len(context.todo.list_tasks()) == 0, "Expected the to-do list to be empty"
+
+
+@then('the to-do list should contain "{title}" after update')
+def step_then_contains_after_update(context, title):
+    titles = [task.title for task in context.todo.list_tasks()]
+    assert title in titles, f"Expected '{title}' in {titles}"
 
 
 def _find_task_by_title(todo, title):

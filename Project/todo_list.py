@@ -91,6 +91,14 @@ class TodoList:
         self._tasks.clear()
         self._save()
 
+    def update_task(self, task_id: int, title: str) -> Task:
+        if not title.strip():
+            raise ValueError("Task title cannot be empty")
+        task = self._find_task_by_id(task_id)
+        task.title = title.strip()
+        self._save()
+        return task
+
     def _find_task_by_id(self, task_id: int) -> Task:
         for task in self._tasks:
             if task.id == task_id:
@@ -123,6 +131,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     complete_parser.add_argument("id", type=int, help="ID of the task to complete")
 
+    update_parser = subparsers.add_parser("update", help="Update a task title")
+    update_parser.add_argument("id", type=int, help="ID of the task to update")
+    update_parser.add_argument("title", help="New title for the task")
+
     subparsers.add_parser("clear", help="Clear all tasks")
 
     args = parser.parse_args(argv)
@@ -143,6 +155,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         try:
             task = todo.mark_completed(args.id)
             print(f"Completed task {task.id}: {task.title}")
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+    elif args.command == "update":
+        try:
+            task = todo.update_task(args.id, args.title)
+            print(f"Updated task {task.id}: {task.title}")
         except ValueError as exc:
             print(str(exc), file=sys.stderr)
             return 1

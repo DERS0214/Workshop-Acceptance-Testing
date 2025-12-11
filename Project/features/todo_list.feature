@@ -32,3 +32,10 @@ Feature: Manage to-do list
     When the user clears the to-do list
     Then the to-do list should be empty
 
+  Scenario: Update a task title
+    Given the to-do list contains tasks:
+      | Task          |
+      | Buy groceries |
+    When the user renames task "Buy groceries" to "Buy food"
+    Then the to-do list should contain "Buy food"
+
